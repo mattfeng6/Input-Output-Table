@@ -5,36 +5,36 @@
 import numpy as np
 
 # 产品部门联系表
-intermediate_demand = np.array([[300, 400, 100],
+product_industry_matrix = np.array([[300, 400, 100],
                                 [300, 1000, 350],
                                 [200, 400, 200]])
 
 # 供给表
-primary_input = np.array([[80, 120, 120],
+supply_table = np.array([[80, 120, 120],
                           [450, 350, 380],
                           [170, 330, 300],
                           [100, 200, 350]])
 
 # 使用表
-final_demand = np.array([[500, 200, 100],
+use_table = np.array([[500, 200, 100],
                          [600, 400, 150],
                          [500, 400, 100]])
 
 print("--------------------")
 print("产品部门联系表:")
-print(intermediate_demand)
+print(product_industry_matrix)
 print("--------------------")
 print("供给表:")
-print(primary_input)
+print(supply_table)
 print("--------------------")
 print("使用表:")
-print(final_demand)
+print(use_table)
 
 # 总投入
-total_input = np.add(np.sum(intermediate_demand, axis=0), np.sum(primary_input, axis=0))
+total_input = np.add(np.sum(product_industry_matrix, axis=0), np.sum(supply_table, axis=0))
 
 # 总产出
-total_output = np.add(np.sum(intermediate_demand, axis=1), np.sum(final_demand, axis=1))
+total_output = np.add(np.sum(product_industry_matrix, axis=1), np.sum(use_table, axis=1))
 
 print("--------------------")
 print("总投入:")
@@ -44,7 +44,7 @@ print("总产出:")
 print(total_output)
 
 # 感应系数
-multiplier_coefficient = np.round(np.divide(intermediate_demand, total_output), decimals=3)
+multiplier_coefficient = np.round(np.divide(product_industry_matrix, total_output), decimals=3)
 
 print("--------------------")
 print("感应系数:")
@@ -61,7 +61,7 @@ print("感应系数汇总:")
 print(sum_multiplier_coefficient)
 
 # 需求系数
-demand_coefficient = np.round(np.divide(intermediate_demand, total_input), decimals=3)
+demand_coefficient = np.round(np.divide(product_industry_matrix, total_input), decimals=3)
 
 print("--------------------")
 print("需求系数:")
