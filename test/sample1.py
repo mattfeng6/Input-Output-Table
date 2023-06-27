@@ -39,16 +39,15 @@ output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/resu
     2. 目前仅支持'.xlsx'和'.xls'后缀的表格文件
 """
 
-# 如输入路径错误 则报错路径不存在
+# 如输入路径文件夹不存在 则系统报错
 if not os.path.exists(input_file_path):
     raise OSError(f"输入路径不存在：{input_file_path}")
-
 
 # 列出所有当前文件夹内的Excel文件
 files = os.listdir(input_file_path)
 excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
 
-# 如果输出路径文件夹不存在，新建文件夹
+# 如果输出路径文件夹不存在 则新建文件夹
 if not os.path.exists(output_file_path):
     os.mkdir(output_file_path)
 
@@ -73,8 +72,6 @@ for file in excel_files:
             III.产出表 -- 根据"GO"单元格确定对应列
 
         2. 如当前文档读取失败 则跳过当前文档进入下一文档读取
-
-        # TODO 产出表目前仅单凭"总产出"本列得出数据 或需引入另一计算模式计算总产出
     """
 
     # 寻找特定内容的单元格的行列并输出所有满足该条件的单元格
@@ -146,7 +143,7 @@ for file in excel_files:
     # 供给表
     supply_table = np.array(dataframe.iloc[supply_start[0]:supply_end[0], supply_start[1]:supply_end[1]])
 
-    # 使用表（直接取总产出）
+    # 使用表
     temp = np.array(dataframe.iloc[use_start[0]:use_end[0], use_start[1]])
     use_table = np.reshape(temp, (len(temp), 1))
 
