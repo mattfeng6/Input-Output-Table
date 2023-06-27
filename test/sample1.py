@@ -18,10 +18,9 @@ import numpy as np
 
 """
 关于如何查找输入/输出路径：
-    1. 点击文件并键盘'Ctr + I'或'Cmd + I'显示当前文件信息
-    2. 点击路径并复制
-    3. 粘贴并取代原有对应输入/输出路径
-    4. 保留引号仅修改中间部分
+    1. 点击文件并键盘输入'Ctr + I'或'Cmd + I'显示当前文件信息
+    2. 找到其文件路径并点击复制
+    3. 粘贴并取代原有对应输入/输出路径 须保留引号仅修改中间部分
     5. 可以自建新文件夹存储所有输出文件 在最后一个'/'号后面修改即可
         e.g. '.../result' 会生成名为'result'的文件夹并存储所有表格在该文件夹中
 """
@@ -59,6 +58,9 @@ for file in excel_files:
     print(f"读取文档：{file}") # 读取文档进度显示
     
     file_path = os.path.join(input_file_path, file)
+
+    # 读取'.xls'用到'xlrd'库
+    # 读取'.xlsx'用到'openpyxl'库
     dataframe = pd.read_excel(file_path, sheet_name=0, header=None, engine="xlrd" if file.endswith(('.xls')) else "openpyxl")
 
     ## -------------------------------------------------- 定位对应单元格 --------------------------------------------------
@@ -136,7 +138,6 @@ for file in excel_files:
     ## ---------------------------------------------------- 对应表格定位 ---------------------------------------------------
     ## -------------------------------------------------------------------------------------------------------------------
 
-
     # 产品部门联系表
     product_industry_matrix = np.array(dataframe.iloc[matrix_start[0]:matrix_end[0], matrix_start[1]:matrix_end[1]])
 
@@ -147,10 +148,8 @@ for file in excel_files:
     temp = np.array(dataframe.iloc[use_start[0]:use_end[0], use_start[1]])
     use_table = np.reshape(temp, (len(temp), 1))
 
-
     ## ------------------------------------------------- 投入产出表系数计算 -------------------------------------------------
     ## -------------------------------------------------------------------------------------------------------------------
-
 
     """
     投入产出表系数计算：
@@ -175,22 +174,18 @@ for file in excel_files:
     # 感应系数
     multiplier_coefficient = divide_matrices(product_industry_matrix, total_output)
 
-
     # 感应系数汇总
     I = np.eye(multiplier_coefficient.shape[0])
     I_M = I - multiplier_coefficient
     sum_multiplier_coefficient = np.linalg.inv(I_M.astype(float))
 
-
     # 需求系数
     demand_coefficient = divide_matrices(product_industry_matrix, total_input)
-
 
     # 需求系数汇总
     I = np.eye(demand_coefficient.shape[0])
     I_M = I - demand_coefficient
     sum_demand_coefficient = np.linalg.inv(I_M.astype(float))
-
 
     ## --------------------------------------------------- 对应表格导出 ----------------------------------------------------
     ## -------------------------------------------------------------------------------------------------------------------
