@@ -8,7 +8,13 @@ import numpy as np
     2. 请确认每个Excel表格中的投入产出表在第一个工作表
     3. 目前仅支持'.xlsx'和'.xls'后缀的表格文件读取
     4. 表格文件会以'.xlsx'后缀形式导出
+    5. 确保本地有numpy, pandas, openpyxl库以读取表格
+        e.g. 在本地终端输入'pip install numpy pandas openpyxl'以下载对应库
 """
+
+
+### ------------------------------------------------- 输入路径 & 输出路径 -------------------------------------------------
+### --------------------------------------------------------------------------------------------------------------------
 
 """
 关于如何查找输入/输出路径：
@@ -19,9 +25,6 @@ import numpy as np
     5. 可以自建新文件夹存储所有输出文件 在最后一个'/'号后面修改即可
         e.g. '.../result' 会生成名为'result'的文件夹并存储所有表格在该文件夹中
 """
-
-### ------------------------------------------------- 输入路径 & 输出路径 -------------------------------------------------
-### --------------------------------------------------------------------------------------------------------------------
 
 input_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/2017年各省份投入产出表" # 输入路径 请替换原有路径
 output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/result" # 输出路径 请替换原有路径
@@ -36,6 +39,11 @@ output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/resu
     2. 目前仅支持'.xlsx'和'.xls'后缀的表格文件
 """
 
+# 如输入路径错误 则报错路径不存在
+if not os.path.exists(input_file_path):
+    raise OSError(f"输入路径不存在：{input_file_path}")
+
+
 # 列出所有当前文件夹内的Excel文件
 files = os.listdir(input_file_path)
 excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
@@ -49,7 +57,7 @@ if not os.path.exists(output_file_path):
 ### --------------------------------------------------------------------------------------------------------------------
 
 for file in excel_files:
-    print(f"读取文档：${file}") # 读取文档进度显示
+    print(f"读取文档：{file}") # 读取文档进度显示
     
     file_path = os.path.join(input_file_path, file)
     dataframe = pd.read_excel(file_path, sheet_name=0, header=None, engine="xlrd" if file.endswith(('.xls')) else "openpyxl")
