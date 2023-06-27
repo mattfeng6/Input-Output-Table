@@ -23,13 +23,13 @@ excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
 if not os.path.exists(output_file_path):
     os.mkdir(output_file_path)
 
-print(excel_files)
-
 ### 读取表格信息
 
 for file in excel_files:
+    print(f"读取文档：${file}")
+    
     file_path = os.path.join(input_file_path, file)
-    dataframe = pd.read_excel(file_path, sheet_name=0, header=None)
+    dataframe = pd.read_excel(file_path, sheet_name=0, header=None, engine="xlrd" if file.endswith(('.xls')) else "openpyxl")
 
     ### 定位对应单元格
 
@@ -141,8 +141,10 @@ for file in excel_files:
 
     ### 导出表格
 
+    if file.endswith('.xls'):
+        file += 'x'
     test_file_path = os.path.join(output_file_path, f'{file}')
-    with pd.ExcelWriter(test_file_path) as writer:
+    with pd.ExcelWriter(test_file_path, engine="openpyxl") as writer:
 
         # 调整系数使得输出代码指数从1开始
         def modifyDFIndex(dataframe: pd.DataFrame):
