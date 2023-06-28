@@ -28,7 +28,6 @@ import numpy as np
 input_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/2017年各省份投入产出表" # 输入路径 请替换原有路径
 output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/result" # 输出路径 请替换原有路径
 
-
 ### ------------------------------------------------- 导入 & 导出文件整理 -------------------------------------------------
 ### --------------------------------------------------------------------------------------------------------------------
 
@@ -50,13 +49,14 @@ excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
 if not os.path.exists(output_file_path):
     os.mkdir(output_file_path)
 
+standardized_table_list = {}
 
 ### ---------------------------------------------------- 读取表格信息 ----------------------------------------------------
 ### --------------------------------------------------------------------------------------------------------------------
 
 for file in excel_files:
     print(f"读取文档：{file}") # 读取文档进度显示
-    
+
     file_path = os.path.join(input_file_path, file)
 
     # 读取'.xls'用到'xlrd'库
@@ -187,6 +187,14 @@ for file in excel_files:
     I_M = I - demand_coefficient
     sum_demand_coefficient = np.linalg.inv(I_M.astype(float))
 
+    # 标准化
+    demand_coefficient_sum = np.sum(sum_demand_coefficient, axis=0)
+    demand_coefficient_avg = np.average(demand_coefficient_sum)
+    standardized_coefficient = divide_matrices(demand_coefficient_sum, demand_coefficient_avg)
+
+    file_name = os.path.splitext(file)[0]
+    standardized_table_list[file_name] = standardized_coefficient
+
     ## --------------------------------------------------- 对应表格导出 ----------------------------------------------------
     ## -------------------------------------------------------------------------------------------------------------------
 
@@ -224,3 +232,14 @@ for file in excel_files:
         dataframe_sum_mutltiplier_coefficient.to_excel(writer, sheet_name="感应系数汇总")
         dataframe_demand_coefficient.to_excel(writer, sheet_name="需求系数")
         dataframe_sum_demand_coefficient.to_excel(writer, sheet_name="需求系数汇总")
+
+### ---------------------------------------------------- 标准化数据产出 ---------------------------------------------------
+### --------------------------------------------------------------------------------------------------------------------
+
+print(f"生成标准化文档...")
+
+standardized_table_list = dict(sorted(standardized_table_list.items()))
+dataframe_standardized = pd.DataFrame(standardized_table_list)
+standardized_output_file_paths = os.path.join(output_file_path, "standardized.xlsx")
+with pd.ExcelWriter(standardized_output_file_paths, engine="openpyxl") as writer:
+    dataframe_standardized.to_excel(writer, sheet_name="感应系数标准化汇总")
