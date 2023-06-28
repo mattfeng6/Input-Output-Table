@@ -26,7 +26,7 @@ import numpy as np
 """
 
 input_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/2017年各省份投入产出表" # 输入路径 请替换原有路径
-output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/result" # 输出路径 请替换原有路径
+output_file_path = "/Users/zhennanfeng/Downloads/internship/投入产出表/分析结果" # 输出路径 请替换原有路径
 
 ### ------------------------------------------------- 导入 & 导出文件整理 -------------------------------------------------
 ### --------------------------------------------------------------------------------------------------------------------
@@ -49,7 +49,8 @@ excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
 if not os.path.exists(output_file_path):
     os.mkdir(output_file_path)
 
-standardized_table_list = {}
+standardized_multiplier = {}
+standardized_demand = {}
 
 ### ---------------------------------------------------- 读取表格信息 ----------------------------------------------------
 ### --------------------------------------------------------------------------------------------------------------------
@@ -188,12 +189,22 @@ for file in excel_files:
     sum_demand_coefficient = np.linalg.inv(I_M.astype(float))
 
     # 标准化
-    demand_coefficient_sum = np.sum(sum_demand_coefficient, axis=0)
-    demand_coefficient_avg = np.average(demand_coefficient_sum)
-    standardized_coefficient = divide_matrices(demand_coefficient_sum, demand_coefficient_avg)
 
     file_name = os.path.splitext(file)[0]
-    standardized_table_list[file_name] = standardized_coefficient
+
+    # 感应系数标准化
+    multiplier_coefficient_sum = np.sum(sum_multiplier_coefficient, axis=1)
+    multiplier_coefficient_avg = np.average(multiplier_coefficient_sum)
+    standardized_multiplier_coefficient = divide_matrices(multiplier_coefficient_sum, multiplier_coefficient_avg)
+    
+    standardized_multiplier[file_name] = standardized_multiplier_coefficient
+    
+    # 需求系数标准化
+    demand_coefficient_sum = np.sum(sum_demand_coefficient, axis=0)
+    demand_coefficient_avg = np.average(demand_coefficient_sum)
+    standardized_demand_coefficient = divide_matrices(demand_coefficient_sum, demand_coefficient_avg)
+    
+    standardized_demand[file_name] = standardized_demand_coefficient
 
     ## --------------------------------------------------- 对应表格导出 ----------------------------------------------------
     ## -------------------------------------------------------------------------------------------------------------------
@@ -238,8 +249,20 @@ for file in excel_files:
 
 print(f"生成标准化文档...")
 
-standardized_table_list = dict(sorted(standardized_table_list.items()))
-dataframe_standardized = pd.DataFrame(standardized_table_list)
-standardized_output_file_paths = os.path.join(output_file_path, "standardized.xlsx")
+# 重新排列城市顺序
+
+standardized_multiplier = dict(sorted(standardized_multiplier.items()))
+standardized_demand = dict(sorted(standardized_demand.items()))
+
+dataframe_standardized_multiplier = pd.DataFrame(standardized_multiplier)
+dataframe_standardized_demand = pd.DataFrame(standardized_demand)
+
+# 生成标准化文档以存储所有城市对应系数
+standardized_output_file_paths = os.path.join(output_file_path, "标准化.xlsx")
 with pd.ExcelWriter(standardized_output_file_paths, engine="openpyxl") as writer:
-    dataframe_standardized.to_excel(writer, sheet_name="感应系数标准化汇总")
+
+    dataframe_standardized_multiplier.index += 1
+    dataframe_standardized_demand.index += 1
+
+    dataframe_standardized_multiplier.to_excel(writer, sheet_name="感应系数标准化汇总")
+    dataframe_standardized_demand.to_excel(writer, sheet_name="需求系数标准化汇总")
