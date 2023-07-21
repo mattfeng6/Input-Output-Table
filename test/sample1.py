@@ -44,6 +44,7 @@ if not os.path.exists(input_file_path):
 # 列出所有当前文件夹内的Excel文件
 files = os.listdir(input_file_path)
 excel_files = [file for file in files if file.endswith(('.xlsx', '.xls'))]
+excel_files = sorted(excel_files)
 
 # 如果输出路径文件夹不存在 则新建文件夹
 if not os.path.exists(output_file_path):
@@ -51,6 +52,8 @@ if not os.path.exists(output_file_path):
 
 standardized_multiplier = {}
 standardized_demand = {}
+
+industry_dict = {}
 
 ### ---------------------------------------------------- 读取表格信息 ----------------------------------------------------
 ### --------------------------------------------------------------------------------------------------------------------
@@ -91,7 +94,28 @@ for file in excel_files:
         if not 0 < len(res) <= 2:
             raise ValueError(f"错误：{file} 无法定位表格行列位置！") # 找不到对应参数 无法对应表格位置
         return res
+    
+    ## --------------------------------------------------- 读取产业信息 ---------------------------------------------------
+    ## ------------------------------------------------------------------------------------------------------------------
 
+    # 存储对应投入产出表的产业
+    def findIndustryDict():
+        
+        # 根据"代码"单元格位置定位各产业
+        daima_cells = findCellIndex(["代码"])
+        row_idx = daima_cells[1][0] + 1
+        col_idx = daima_cells[0][1]
+
+        for index_row, _ in dataframe.iterrows():
+            if index_row < row_idx: continue
+            industry_key = dataframe.at[index_row, col_idx]
+            if industry_key == "TII": break
+            industry_dict[int(industry_key)] = dataframe.at[index_row, col_idx-1]
+
+    if not industry_dict:
+        findIndustryDict()
+        print(industry_dict)
+    
     # 找到产品部门联系表对应起始和结束行列
     def industryMatrixIndex() -> list:
 
@@ -250,7 +274,6 @@ for file in excel_files:
 print(f"生成标准化文档...")
 
 # 重新排列城市顺序
-
 standardized_multiplier = dict(sorted(standardized_multiplier.items()))
 standardized_demand = dict(sorted(standardized_demand.items()))
 
